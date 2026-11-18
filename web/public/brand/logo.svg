@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="40" viewBox="0 0 240 40" role="img" aria-label="Copa com Dados">
+  <!-- Placeholder wordmark. Replace with web/public/brand/logo.png and update BRAND_LOGO in web/src/config/brand.ts -->
+  <rect x="0" y="2" width="36" height="36" rx="10" fill="#004ac6"/>
+  <circle cx="18" cy="20" r="10.5" fill="none" stroke="#85f8c4" stroke-width="3"/>
+  <path d="M10.5 25.5 L15.5 20.5 L19.5 23.5 L26 15.5" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="46" y="27.5" textLength="190" lengthAdjust="spacingAndGlyphs" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="600" fill="#0d1c2f">Copa com Dados</text>
+</svg>

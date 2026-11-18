@@ -1,0 +1,27 @@
+# deps / builds
+node_modules/
+web/dist/
+*.local
+.env
+.env.*
+!.env.example
+
+# firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+
+# python
+model/.venv/
+model/out/
+__pycache__/
+*.pyc
+
+# secrets — NEVER commit service-account keys
+model/service-account.json
+*service-account*.json
+
+.DS_Store
+
+# Original prototype (not published)
+ref/

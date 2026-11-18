@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Copa com Dados
+// - Model data and site copy are public and read-only from browsers. They are
+//   written server-side with the Admin SDK (model/seed.py), which bypasses rules.
+// - `people` (the "Quem faz o projeto" section) can also be edited from the
+//   site's /admin page by signed-in Google accounts listed in `admins`.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email_verified == true
+        && exists(/databases/$(database)/documents/admins/$(request.auth.token.email));
+    }
+
+    function validPerson(d) {
+      return d.keys().hasOnly(['name', 'kind', 'title', 'subtitle', 'tag', 'photo', 'order',
+                               'visible', 'updatedAt', 'updatedBy', 'schemaVersion'])
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 80
+        && d.kind in ['coordinator', 'student']
+        && d.title is string && d.title.size() <= 120
+        && d.subtitle is string && d.subtitle.size() <= 160
+        && d.tag is string && d.tag.size() <= 40
+        && d.photo is string && d.photo.size() <= 700000
+        && d.order is number
+        && d.visible is bool;
+    }
+
+    match /{collection}/{docId} {
+      allow read: if collection in ['teams', 'matches', 'matchups', 'content', 'meta'];
+      allow write: if false;
+    }
+
+    match /people/{personId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && validPerson(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Allowlist of editors (doc id = Google account e-mail). Managed with
+    // model/admins.py; each user may only check their own entry.
+    match /admins/{email} {
+      allow get: if request.auth != null && request.auth.token.email == email;
+      allow list, write: if false;
+    }
+  }
+}
