@@ -5,7 +5,7 @@ const SPACING = 30; // px between grid points
 const RADIUS = 150; // px of influence around the pointer
 const DOT = 1.1; // resting dot radius
 const GROW = 9; // extra radius right under the pointer
-const DOT_COLOR = 'rgba(115, 118, 134, 0.22)';
+const DOT_COLOR = 'rgba(0, 74, 198, 0.16)'; // very light primary blue
 const LINK_RGB = '0, 74, 198'; // primary
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -21,7 +21,7 @@ export function BallField() {
   useEffect(() => {
     const canvas = ref.current!;
     const ctx = canvas.getContext('2d')!;
-    const sprite = ballSprite();
+    const sprite = ballSprite(64, '#5b8def'); // light blue patches
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     let w = 0;
@@ -51,10 +51,9 @@ export function BallField() {
           const dy = y - cur.y;
           const d = Math.hypot(dx, dy);
           const t = cur.on * smooth(Math.max(0, 1 - d / RADIUS));
-          const push = d > 0 ? (t * 7) / d : 0; // drift away from the pointer
           infl[i] = t;
-          px[i] = x + dx * push;
-          py[i] = y + dy * push;
+          px[i] = x;
+          py[i] = y;
         }
       }
 
