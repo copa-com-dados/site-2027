@@ -8,6 +8,8 @@ const GROW = 9; // extra radius right under the pointer
 const DOT_COLOR = 'rgba(0, 74, 198, 0.16)'; // very light primary blue
 const LINK_RGB = '0, 74, 198'; // primary
 
+const TRAIL_MS = 380; // how long a ball lingers after the pointer leaves it (time constant)
+
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
 /**
@@ -30,15 +32,22 @@ export function BallField() {
     let fadeTimer = 0;
     const target = { x: -9999, y: -9999, on: 0 };
     const cur = { x: -9999, y: -9999, on: 0 };
+    // Per-dot level that decays slowly, so fast mouse moves leave a trail.
+    let level = new Float32Array(0);
+    let fading = false; // some dot is still decaying (trail visible)
+    let last = performance.now();
 
-    const draw = () => {
+    const draw = (dt = 0) => {
       ctx.clearRect(0, 0, w, h);
       const cols = Math.ceil(w / SPACING) + 1;
       const rows = Math.ceil(h / SPACING) + 1;
       const ox = (w % SPACING) / 2;
       const oy = (h % SPACING) / 2;
       const n = cols * rows;
-      const infl = new Float32Array(n);
+      if (level.length !== n) level = new Float32Array(n);
+      const infl = level;
+      const decay = reduced ? 0 : Math.exp(-dt / TRAIL_MS);
+      fading = false;
       const px = new Float32Array(n);
       const py = new Float32Array(n);
 
@@ -51,7 +60,13 @@ export function BallField() {
           const dy = y - cur.y;
           const d = Math.hypot(dx, dy);
           const t = cur.on * smooth(Math.max(0, 1 - d / RADIUS));
-          infl[i] = t;
+          const kept = infl[i]! * decay;
+          if (kept > t && kept > 0.01) {
+            infl[i] = kept;
+            fading = true;
+          } else {
+            infl[i] = t;
+          }
           px[i] = x;
           py[i] = y;
         }
@@ -105,20 +120,26 @@ export function BallField() {
       draw();
     };
 
-    const tick = () => {
-      const k = reduced ? 1 : 0.18;
+    const tick = (now: number) => {
+      const dt = Math.max(0, Math.min(100, now - last));
+      last = now;
+      const k = reduced ? 1 : 0.35;
       cur.x += (target.x - cur.x) * k;
       cur.y += (target.y - cur.y) * k;
       cur.on += (target.on - cur.on) * (reduced ? 1 : 0.1);
-      draw();
+      draw(dt);
       const settled =
         Math.abs(target.x - cur.x) < 0.3 &&
         Math.abs(target.y - cur.y) < 0.3 &&
         Math.abs(target.on - cur.on) < 0.005;
-      raf = settled ? 0 : requestAnimationFrame(tick);
+      // keep going while the pointer moves or a trail is still fading
+      raf = settled && !fading ? 0 : requestAnimationFrame(tick);
     };
     const kick = () => {
-      if (!raf) raf = requestAnimationFrame(tick);
+      if (!raf) {
+        last = performance.now();
+        raf = requestAnimationFrame(tick);
+      }
     };
 
     const onMove = (e: PointerEvent) => {
