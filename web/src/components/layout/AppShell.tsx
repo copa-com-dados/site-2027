@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { BallField } from '../fx/BallField';
 import { BottomNav } from './BottomNav';
 import { Header } from './Header';
 import { NAV_ITEMS, isActive } from './nav';
@@ -22,10 +23,11 @@ export function AppShell() {
       >
         Pular para o conteúdo
       </a>
+      <BallField />
       <Header />
       <main
         id="conteudo"
-        className="flex-1 flex flex-col relative w-full max-w-6xl mx-auto pt-16 pb-24 lg:pt-24 lg:pb-12 bg-surface px-gutter-mobile lg:px-gutter"
+        className="flex-1 flex flex-col relative z-[1] w-full max-w-6xl mx-auto pt-16 pb-24 lg:pt-24 lg:pb-12 px-gutter-mobile lg:px-gutter"
       >
         <Outlet />
       </main>

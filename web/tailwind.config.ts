@@ -93,8 +93,17 @@ export default {
       keyframes: {
         fadeIn: { from: { opacity: '0', transform: 'translateY(-2px)' }, to: { opacity: '1', transform: 'none' } },
         sheetUp: { from: { transform: 'translateY(100%)' }, to: { transform: 'none' } },
+        popIn: {
+          '0%': { opacity: '0', transform: 'scale(0.85)' },
+          '60%': { opacity: '1', transform: 'scale(1.05)' },
+          '100%': { opacity: '1', transform: 'none' },
+        },
       },
-      animation: { fadeIn: 'fadeIn 200ms ease-out', sheetUp: 'sheetUp 250ms cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      animation: {
+        fadeIn: 'fadeIn 200ms ease-out',
+        sheetUp: 'sheetUp 250ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+        popIn: 'popIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both',
+      },
     },
   },
   plugins: [],

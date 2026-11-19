@@ -27,6 +27,13 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-popIn,
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
 ::-webkit-scrollbar {
   display: none;
 }
