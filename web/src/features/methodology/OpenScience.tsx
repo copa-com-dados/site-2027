@@ -22,7 +22,10 @@ export function OpenScience({ repo, ethics }: Pick<MethodologyContent, 'repo' | 
             <span className="font-body-sm text-[13px] text-on-surface-variant">{repo.subtitle}</span>
           </div>
         </div>
-        <Icon name="chevron_right" className="text-outline group-hover:text-primary transition-colors text-[20px]" />
+        <Icon
+          name="chevron_right"
+          className="text-outline group-hover:text-primary transition-colors text-[20px]"
+        />
       </a>
 
       <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex items-start gap-space-md">
@@ -31,7 +34,9 @@ export function OpenScience({ repo, ethics }: Pick<MethodologyContent, 'repo' | 
         </div>
         <div className="flex-1">
           <h4 className="font-title-md text-[16px] text-on-surface font-semibold">{ethics.title}</h4>
-          <p className="font-body-sm text-[13px] text-on-surface-variant mt-1 leading-relaxed">{ethics.body}</p>
+          <p className="font-body-sm text-[13px] text-on-surface-variant mt-1 leading-relaxed">
+            {ethics.body}
+          </p>
         </div>
       </div>
     </section>

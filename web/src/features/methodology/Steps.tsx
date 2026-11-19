@@ -27,7 +27,9 @@ export function Steps({ steps }: { steps: MethodologyContent['steps'] }) {
     <section className="flex flex-col space-y-space-md">
       <div className="flex items-center justify-between">
         <h2 className="font-title-lg text-[20px] font-semibold text-on-surface">Etapas da Estimativa</h2>
-        <span className="font-label-sm text-[11px] text-outline font-medium">{steps.length} fases sequenciais</span>
+        <span className="font-label-sm text-[11px] text-outline font-medium">
+          {steps.length} fases sequenciais
+        </span>
       </div>
 
       {steps.map((step) => {
@@ -42,9 +44,17 @@ export function Steps({ steps }: { steps: MethodologyContent['steps'] }) {
                 <Icon name={step.icon} className="text-[26px]" />
               </div>
               <div className="flex-1 min-w-0">
-                <span className={`font-label-sm text-[11px] tracking-wide uppercase font-semibold ${v.label}`}>{step.label}</span>
-                <h3 className="font-title-md text-[16px] font-semibold text-on-surface mt-0.5">{step.title}</h3>
-                <p className="font-body-md text-[15px] leading-[24px] text-on-surface-variant mt-1.5">{step.body}</p>
+                <span
+                  className={`font-label-sm text-[11px] tracking-wide uppercase font-semibold ${v.label}`}
+                >
+                  {step.label}
+                </span>
+                <h3 className="font-title-md text-[16px] font-semibold text-on-surface mt-0.5">
+                  {step.title}
+                </h3>
+                <p className="font-body-md text-[15px] leading-[24px] text-on-surface-variant mt-1.5">
+                  {step.body}
+                </p>
                 <div className="mt-space-sm pt-space-xs flex items-center gap-2">
                   <Icon name={step.footIcon} className={`text-[16px] ${v.foot}`} />
                   <span className={`font-body-sm text-[13px] font-medium ${v.foot}`}>{step.footnote}</span>

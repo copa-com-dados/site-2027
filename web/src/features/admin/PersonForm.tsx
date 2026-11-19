@@ -32,7 +32,8 @@ export function PersonForm({ initial, nextOrder, onSubmit, onCancel }: PersonFor
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const set = <K extends keyof PersonInput>(key: K, value: PersonInput[K]) => setForm((f) => ({ ...f, [key]: value }));
+  const set = <K extends keyof PersonInput>(key: K, value: PersonInput[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
 
   const onPhoto = async (file: File | undefined) => {
     if (!file) return;
@@ -60,12 +61,22 @@ export function PersonForm({ initial, nextOrder, onSubmit, onCancel }: PersonFor
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
-        <Avatar key={form.photo} name={form.name || '?'} src={form.photo || undefined} className="w-16 h-16" />
+        <Avatar
+          key={form.photo}
+          name={form.name || '?'}
+          src={form.photo || undefined}
+          className="w-16 h-16"
+        />
         <div className="flex flex-col gap-1.5">
           <label className="inline-flex items-center gap-1.5 self-start cursor-pointer py-2 px-3.5 rounded-full bg-surface-container hover:bg-surface-container-high text-primary font-label-md text-[13px] font-semibold transition-colors focus-within:ring-2 focus-within:ring-primary">
             <Icon name="photo_camera" className="text-[18px]" />
             {form.photo ? 'Trocar foto' : 'Enviar foto'}
-            <input type="file" accept="image/*" className="sr-only" onChange={(e) => onPhoto(e.target.files?.[0])} />
+            <input
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => onPhoto(e.target.files?.[0])}
+            />
           </label>
           {form.photo ? (
             <button type="button" onClick={() => set('photo', '')} className={`${hint} self-start underline`}>
@@ -104,7 +115,9 @@ export function PersonForm({ initial, nextOrder, onSubmit, onCancel }: PersonFor
             <label
               key={value}
               className={`flex items-center justify-center gap-1.5 py-2.5 rounded-lg cursor-pointer font-label-md text-[13px] font-semibold transition-colors ${
-                form.kind === value ? 'bg-primary text-on-primary' : 'bg-surface-container-low text-on-surface hover:bg-surface-container'
+                form.kind === value
+                  ? 'bg-primary text-on-primary'
+                  : 'bg-surface-container-low text-on-surface hover:bg-surface-container'
               }`}
             >
               <input
@@ -174,7 +187,10 @@ export function PersonForm({ initial, nextOrder, onSubmit, onCancel }: PersonFor
       </label>
 
       {error && (
-        <p role="alert" className="font-body-sm text-[13px] text-error bg-error-container/60 rounded-lg px-3 py-2">
+        <p
+          role="alert"
+          className="font-body-sm text-[13px] text-error bg-error-container/60 rounded-lg px-3 py-2"
+        >
           {error}
         </p>
       )}

@@ -51,8 +51,12 @@ export function YouTubeCard({ video }: { video: HomeContent['video'] }) {
         </div>
 
         <div className="relative z-10">
-          <p className="font-title-md text-[16px] font-semibold text-inverse-on-surface leading-tight">{video.title}</p>
-          <p className="font-body-sm text-[13px] leading-[20px] text-surface-container-highest/90">{video.subtitle}</p>
+          <p className="font-title-md text-[16px] font-semibold text-inverse-on-surface leading-tight">
+            {video.title}
+          </p>
+          <p className="font-body-sm text-[13px] leading-[20px] text-surface-container-highest/90">
+            {video.subtitle}
+          </p>
         </div>
       </div>
     </div>

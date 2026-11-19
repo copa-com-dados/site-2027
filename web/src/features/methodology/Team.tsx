@@ -24,9 +24,13 @@ export function Team({ team, people }: TeamProps) {
           <div className="flex items-center gap-space-md">
             <Avatar name={c.name} src={c.photo || undefined} className="w-14 h-14" />
             <div className="flex-1 min-w-0">
-              <h3 className="font-title-md text-[16px] font-semibold text-on-surface leading-snug">{c.name}</h3>
+              <h3 className="font-title-md text-[16px] font-semibold text-on-surface leading-snug">
+                {c.name}
+              </h3>
               {c.title && <p className="font-body-sm text-[13px] text-on-surface-variant">{c.title}</p>}
-              {c.subtitle && <p className="font-label-sm text-[11px] text-secondary font-medium mt-0.5">{c.subtitle}</p>}
+              {c.subtitle && (
+                <p className="font-label-sm text-[11px] text-secondary font-medium mt-0.5">{c.subtitle}</p>
+              )}
             </div>
           </div>
         </div>
@@ -41,11 +45,17 @@ export function Team({ team, people }: TeamProps) {
             <div key={s.id} className="flex items-center gap-space-md">
               <Avatar name={s.name} src={s.photo || undefined} />
               <div className="flex-1 min-w-0">
-                <h4 className="font-title-md text-[15px] font-semibold text-on-surface leading-snug">{s.name}</h4>
+                <h4 className="font-title-md text-[15px] font-semibold text-on-surface leading-snug">
+                  {s.name}
+                </h4>
                 {s.title && <p className="font-body-sm text-[13px] text-on-surface-variant">{s.title}</p>}
-                {s.subtitle && <p className="font-label-sm text-[11px] text-secondary font-medium">{s.subtitle}</p>}
+                {s.subtitle && (
+                  <p className="font-label-sm text-[11px] text-secondary font-medium">{s.subtitle}</p>
+                )}
               </div>
-              {s.tag && <span className="font-label-sm text-[11px] text-on-surface-variant shrink-0">{s.tag}</span>}
+              {s.tag && (
+                <span className="font-label-sm text-[11px] text-on-surface-variant shrink-0">{s.tag}</span>
+              )}
             </div>
           ))}
         </div>

@@ -1,12 +1,4 @@
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  type QueryConstraint,
-} from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, orderBy, query, type QueryConstraint } from 'firebase/firestore';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { db } from '../lib/firebase';
 

@@ -10,7 +10,8 @@ export function AppShell() {
   useEffect(() => {
     window.scrollTo({ top: 0 });
     const item = NAV_ITEMS.find((i) => isActive(i.path, pathname));
-    document.title = item && item.path !== '/' ? `${item.label} · Copa com Dados 2027` : 'Copa com Dados 2027';
+    document.title =
+      item && item.path !== '/' ? `${item.label} · Copa com Dados 2027` : 'Copa com Dados 2027';
   }, [pathname]);
 
   return (

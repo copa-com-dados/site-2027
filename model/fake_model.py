@@ -7,6 +7,21 @@ and jittered with random noise, so the numbers carry NO predictive value.
 
 Everything shown for a match on the website is derived from ONE score matrix,
 so 1X2 odds, the most likely score and the heatmap always agree.
+
+What `FakeModel.run()` returns (and what the real model must return too) is a
+dict ``{collection: {doc_id: document}}``:
+
+* ``teams``    one doc per team, incl. ``titleProb`` (chance of winning the cup)
+* ``matches``  the fixtures of every PUBLISHED round, each tagged with ``round``
+* ``matchups`` every ordered pair of teams, for the simulator
+* ``meta``     ``meta/model``: model version, the full list of ``rounds`` of the
+               tournament and ``currentRound`` (the round the site opens on)
+
+Rounds: the tournament calendar lives in ``ROUNDS`` below. Only rounds listed
+in ``PUBLISHED_ROUNDS`` get matches; the others show up on the site as
+"em breve". To publish the next round, add its fixtures and its number to
+``PUBLISHED_ROUNDS`` and move ``CURRENT_ROUND`` forward.
+See docs/DATA_CONTRACT.md for the field-by-field format.
 """
 
 from __future__ import annotations
@@ -38,24 +53,84 @@ class TeamSeed:
     is_host: bool = False
 
 
+# 32 teams in 8 groups of 4 (2027 format). Ratings are invented.
 TEAMS: Tuple[TeamSeed, ...] = (
-    TeamSeed("BRA", "Brasil", "Brasil", "🇧🇷", "A", 1.85, 0.82, is_host=True),
-    TeamSeed("ESP", "Espanha", "Espanha", "🇪🇸", "B", 1.95, 0.78),
-    TeamSeed("USA", "Estados Unidos", "EUA", "🇺🇸", "C", 1.90, 0.80),
-    TeamSeed("ENG", "Inglaterra", "Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "D", 1.80, 0.85),
+    # Group A
+    TeamSeed("BRA", "Brasil", "Brasil", "🇧🇷", "A", 1.50, 0.97, is_host=True),
     TeamSeed("FRA", "França", "França", "🇫🇷", "A", 1.75, 0.90),
-    TeamSeed("GER", "Alemanha", "Alemanha", "🇩🇪", "E", 1.70, 0.95),
+    TeamSeed("NZL", "Nova Zelândia", "N. Zelândia", "🇳🇿", "A", 1.10, 1.25),
+    TeamSeed("MAR", "Marrocos", "Marrocos", "🇲🇦", "A", 1.05, 1.20),
+    # Group B
+    TeamSeed("ESP", "Espanha", "Espanha", "🇪🇸", "B", 1.95, 0.78),
     TeamSeed("SWE", "Suécia", "Suécia", "🇸🇪", "B", 1.55, 0.88),
+    TeamSeed("NGA", "Nigéria", "Nigéria", "🇳🇬", "B", 1.20, 1.10),
+    TeamSeed("CRC", "Costa Rica", "Costa Rica", "🇨🇷", "B", 0.95, 1.35),
+    # Group C
+    TeamSeed("USA", "Estados Unidos", "EUA", "🇺🇸", "C", 1.90, 0.80),
     TeamSeed("JPN", "Japão", "Japão", "🇯🇵", "C", 1.65, 0.92),
+    TeamSeed("COL", "Colômbia", "Colômbia", "🇨🇴", "C", 1.30, 1.05),
+    TeamSeed("PHI", "Filipinas", "Filipinas", "🇵🇭", "C", 0.85, 1.45),
+    # Group D
+    TeamSeed("GER", "Alemanha", "Alemanha", "🇩🇪", "D", 1.70, 0.95),
+    TeamSeed("ENG", "Inglaterra", "Inglaterra", "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "D", 1.80, 0.85),
+    TeamSeed("KOR", "Coreia do Sul", "Coreia do Sul", "🇰🇷", "D", 1.20, 1.15),
+    TeamSeed("JAM", "Jamaica", "Jamaica", "🇯🇲", "D", 1.05, 1.25),
+    # Group E
+    TeamSeed("NED", "Países Baixos", "Holanda", "🇳🇱", "E", 1.60, 0.95),
+    TeamSeed("CAN", "Canadá", "Canadá", "🇨🇦", "E", 1.50, 0.92),
+    TeamSeed("ARG", "Argentina", "Argentina", "🇦🇷", "E", 1.15, 1.15),
+    TeamSeed("ZAM", "Zâmbia", "Zâmbia", "🇿🇲", "E", 1.10, 1.35),
+    # Group F
+    TeamSeed("AUS", "Austrália", "Austrália", "🇦🇺", "F", 1.55, 0.98),
+    TeamSeed("NOR", "Noruega", "Noruega", "🇳🇴", "F", 1.45, 1.00),
+    TeamSeed("IRL", "Irlanda", "Irlanda", "🇮🇪", "F", 1.05, 1.15),
+    TeamSeed("VIE", "Vietnã", "Vietnã", "🇻🇳", "F", 0.75, 1.55),
+    # Group G
+    TeamSeed("DEN", "Dinamarca", "Dinamarca", "🇩🇰", "G", 1.45, 0.98),
+    TeamSeed("ITA", "Itália", "Itália", "🇮🇹", "G", 1.40, 1.00),
+    TeamSeed("MEX", "México", "México", "🇲🇽", "G", 1.15, 1.15),
+    TeamSeed("RSA", "África do Sul", "África do Sul", "🇿🇦", "G", 1.00, 1.30),
+    # Group H
+    TeamSeed("CHN", "China", "China", "🇨🇳", "H", 1.30, 1.05),
+    TeamSeed("SUI", "Suíça", "Suíça", "🇨🇭", "H", 1.30, 1.08),
+    TeamSeed("POR", "Portugal", "Portugal", "🇵🇹", "H", 1.25, 1.10),
+    TeamSeed("HAI", "Haiti", "Haiti", "🇭🇹", "H", 0.85, 1.45),
 )
 
-# Round-1 fixtures shown on the "Previsões" screen: (id, home, away).
-FIXTURES: Tuple[Tuple[str, str, str], ...] = (
-    ("bra-fra", "BRA", "FRA"),
-    ("esp-swe", "ESP", "SWE"),
-    ("usa-jpn", "USA", "JPN"),
-    ("ger-eng", "GER", "ENG"),
+GROUPS: Dict[str, List[str]] = {}
+for _t in TEAMS:
+    GROUPS.setdefault(_t.group, []).append(_t.code)
+
+# Tournament calendar (written to meta/model.rounds). `round` is the key that
+# every match document points to.
+ROUNDS: Tuple[Dict[str, Any], ...] = (
+    {"round": 1, "label": "Rodada 1", "stage": "Fase de grupos"},
+    {"round": 2, "label": "Rodada 2", "stage": "Fase de grupos"},
+    {"round": 3, "label": "Rodada 3", "stage": "Fase de grupos"},
+    {"round": 4, "label": "Oitavas de final", "stage": "Mata-mata"},
+    {"round": 5, "label": "Quartas de final", "stage": "Mata-mata"},
+    {"round": 6, "label": "Semifinais", "stage": "Mata-mata"},
+    {"round": 7, "label": "Final e 3º lugar", "stage": "Mata-mata"},
 )
+PUBLISHED_ROUNDS: Tuple[int, ...] = (1,)  # rounds that already have predictions
+CURRENT_ROUND = 1  # round the "Previsões" page opens on
+
+# Group-stage pairings by round, as indexes into each group's 4 teams.
+GROUP_SCHEDULE: Dict[int, Tuple[Tuple[int, int], ...]] = {
+    1: ((0, 1), (2, 3)),
+    2: ((0, 2), (3, 1)),
+    3: ((3, 0), (1, 2)),
+}
+
+
+def group_fixtures(rnd: int) -> List[Tuple[str, str, str, str]]:
+    """(match id, home, away, group) for one group-stage round."""
+    out = []
+    for g, members in GROUPS.items():
+        for i, j in GROUP_SCHEDULE[rnd]:
+            h, a = members[i], members[j]
+            out.append((f"{h}-{a}".lower(), h, a, g))
+    return out
 
 
 def _poisson_pmf(lam: float, n: int) -> np.ndarray:
@@ -143,12 +218,13 @@ class FakeModel:
             "topScores": top,
         }
 
-    def match_doc(self, order: int, home: str, away: str) -> Dict[str, Any]:
-        dist = self.distribution(home, away)
+    def match_doc(self, order: int, rnd: int, home: str, away: str, stage_label: str) -> Dict[str, Any]:
+        # World Cup games are on neutral ground except for the host.
+        dist = score_distribution(*self._neutral(home, away))
         return {
             "order": order,
-            "round": 1,
-            "stageLabel": "Fase de Grupos",
+            "round": rnd,
+            "stageLabel": stage_label,
             "kickoff": None,
             "home": {"code": home, "role": "Mandante"},
             "away": {"code": away, "role": "Visitante"},
@@ -157,23 +233,55 @@ class FakeModel:
             "matrix": cells(exact_5x5(dist)),
         }
 
+    def match_docs(self) -> Dict[str, Dict[str, Any]]:
+        docs: Dict[str, Dict[str, Any]] = {}
+        for rnd in PUBLISHED_ROUNDS:
+            if rnd not in GROUP_SCHEDULE:
+                raise NotImplementedError("the fake model only knows group-stage fixtures")
+            for order, (mid, h, a, g) in enumerate(group_fixtures(rnd), start=1):
+                docs[mid] = self.match_doc(rnd * 100 + order, rnd, h, a, f"Grupo {g}")
+        return docs
+
     def title_odds(self, n: int = ITERATIONS) -> Dict[str, float]:
-        """Monte Carlo of an 8-team knockout bracket with random draws each run."""
+        """Monte Carlo of the whole tournament: groups (top 2 advance), then a 16-team knockout."""
         codes = [t.code for t in TEAMS]
-        win_p: Dict[Tuple[str, str], float] = {}
-        for a in codes:
-            for b in codes:
-                if a != b:
-                    o = outcome_probs(score_distribution(*self._neutral(a, b)))
-                    win_p[(a, b)] = o["home"] + o["draw"] / 2  # penalties = coin flip
+        probs = {
+            (a, b): outcome_probs(score_distribution(*self._neutral(a, b)))
+            for a in codes
+            for b in codes
+            if a != b
+        }
+        letters = sorted(GROUPS)
         wins = {c: 0 for c in codes}
         for _ in range(n):
-            alive = list(self.rng.permutation(codes))
+            table: Dict[str, List[str]] = {}
+            for g in letters:
+                members = GROUPS[g]
+                pts = {c: float(self.rng.random()) * 0.1 for c in members}  # random tie-break
+                for i in range(4):
+                    for j in range(i + 1, 4):
+                        a, b = members[i], members[j]
+                        o, r = probs[(a, b)], self.rng.random()
+                        if r < o["home"]:
+                            pts[a] += 3
+                        elif r < o["home"] + o["draw"]:
+                            pts[a] += 1
+                            pts[b] += 1
+                        else:
+                            pts[b] += 3
+                table[g] = sorted(members, key=pts.get, reverse=True)
+            # Round of 16: A1-B2, C1-D2, ... then B1-A2, D1-C2, ...
+            alive: List[str] = []
+            for x, y in zip(letters[::2], letters[1::2]):
+                alive += [table[x][0], table[y][1]]
+            for x, y in zip(letters[::2], letters[1::2]):
+                alive += [table[y][0], table[x][1]]
             while len(alive) > 1:
-                alive = [
-                    a if self.rng.random() < win_p[(a, b)] else b
-                    for a, b in zip(alive[::2], alive[1::2])
-                ]
+                nxt = []
+                for a, b in zip(alive[::2], alive[1::2]):
+                    o = probs[(a, b)]
+                    nxt.append(a if self.rng.random() < o["home"] + o["draw"] / 2 else b)  # penalties = coin flip
+                alive = nxt
             wins[alive[0]] += 1
         return {c: wins[c] / n for c in codes}
 
@@ -207,14 +315,16 @@ class FakeModel:
         codes = [t.code for t in TEAMS]
         return {
             "teams": self.team_docs(),
-            "matches": {mid: self.match_doc(i + 1, h, a) for i, (mid, h, a) in enumerate(FIXTURES)},
+            "matches": self.match_docs(),
             "matchups": {f"{h}_{a}": self.matchup_doc(h, a) for h in codes for a in codes if h != a},
             "meta": {
                 "model": {
-                    "version": "fake-0.1.0",
+                    "version": "fake-0.2.0",
                     "source": "fake",
                     "runNumber": run_number,
                     "iterations": ITERATIONS,
+                    "rounds": [dict(r) for r in ROUNDS],
+                    "currentRound": CURRENT_ROUND,
                     "schemaVersion": SCHEMA_VERSION,
                 }
             },

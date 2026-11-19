@@ -21,7 +21,9 @@ export function MatchCard({ match, home, away }: Omit<Props, 'top'>) {
             <span className="font-label-sm text-[11px] text-on-surface-variant">{match.home.role}</span>
           </div>
         </div>
-        <span className="font-label-sm text-[11px] text-on-surface-variant text-center px-1">{match.stageLabel}</span>
+        <span className="font-label-sm text-[11px] text-on-surface-variant text-center px-1">
+          {match.stageLabel}
+        </span>
         <div className="flex items-center gap-2 min-w-0 justify-end text-right">
           <div className="flex flex-col min-w-0">
             <span className="font-title-md text-[16px] font-semibold truncate">{away.shortName}</span>
@@ -42,9 +44,18 @@ export function MatchCard({ match, home, away }: Omit<Props, 'top'>) {
           </span>
         </div>
         <div className="h-2.5 w-full bg-surface-container-high rounded-full overflow-hidden flex">
-          <div className="bg-secondary-fixed-dim h-full transition-all duration-500" style={{ width: `${pH}%` }} />
-          <div className="bg-surface-variant h-full transition-all duration-500" style={{ width: `${pD}%` }} />
-          <div className="bg-primary-fixed-dim h-full transition-all duration-500" style={{ width: `${pA}%` }} />
+          <div
+            className="bg-secondary-fixed-dim h-full transition-all duration-500"
+            style={{ width: `${pH}%` }}
+          />
+          <div
+            className="bg-surface-variant h-full transition-all duration-500"
+            style={{ width: `${pD}%` }}
+          />
+          <div
+            className="bg-primary-fixed-dim h-full transition-all duration-500"
+            style={{ width: `${pA}%` }}
+          />
         </div>
       </div>
     </section>
@@ -69,7 +80,9 @@ export function TopOutcome({ match, top }: Pick<Props, 'match' | 'top'>) {
         <span className="px-2.5 py-1 rounded-full bg-surface-container-lowest/90 text-secondary font-tabular-stat text-[16px] font-bold leading-none inline-block">
           {pct(top.p)}
         </span>
-        <span className="block font-label-sm text-[11px] mt-1 opacity-80">{count(match.iterations)} simulações</span>
+        <span className="block font-label-sm text-[11px] mt-1 opacity-80">
+          {count(match.iterations)} simulações
+        </span>
       </div>
     </section>
   );

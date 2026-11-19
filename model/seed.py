@@ -29,6 +29,8 @@ HERE = Path(__file__).resolve().parent
 DEFAULT_KEY = HERE / "service-account.json"
 PROJECT_ID = "copa-com-dados"
 BATCH_LIMIT = 450  # Firestore hard limit is 500 writes per batch
+# Collections fully owned by the model: each run replaces them entirely.
+REPLACED_COLLECTIONS = ("teams", "matches", "matchups")
 
 Dataset = Dict[str, Dict[str, Dict[str, Any]]]
 
@@ -65,15 +67,25 @@ def write_firestore(data: Dataset) -> None:
         print("people/ already has documents; skipping placeholders (manage them in /admin)")
         data = {k: v for k, v in data.items() if k != "people"}
 
-    ops = [(c, doc_id, doc) for c, docs in data.items() for doc_id, doc in docs.items()]
+    ops: list = [("set", c, doc_id, doc) for c, docs in data.items() for doc_id, doc in docs.items()]
+    # Model output REPLACES the previous run: docs that are no longer produced
+    # (e.g. a team that was removed) are deleted, so the site never mixes runs.
+    for c in REPLACED_COLLECTIONS:
+        if c in data:
+            stale = [ref.id for ref in db.collection(c).list_documents() if ref.id not in data[c]]
+            ops += [("delete", c, doc_id, None) for doc_id in stale]
     for start in range(0, len(ops), BATCH_LIMIT):
         batch = db.batch()
-        for collection, doc_id, doc in ops[start : start + BATCH_LIMIT]:
-            payload = dict(doc, schemaVersion=SCHEMA_VERSION, updatedAt=firestore.SERVER_TIMESTAMP)
-            batch.set(db.collection(collection).document(doc_id), payload)
+        for kind, collection, doc_id, doc in ops[start : start + BATCH_LIMIT]:
+            ref = db.collection(collection).document(doc_id)
+            if kind == "delete":
+                batch.delete(ref)
+            else:
+                batch.set(ref, dict(doc, schemaVersion=SCHEMA_VERSION, updatedAt=firestore.SERVER_TIMESTAMP))
         batch.commit()
     counts = ", ".join(f"{c}={len(d)}" for c, d in data.items())
-    print(f"Committed {len(ops)} docs to Firestore ({counts})")
+    deleted = sum(1 for op in ops if op[0] == "delete")
+    print(f"Committed {len(ops) - deleted} docs to Firestore ({counts}); deleted {deleted} stale docs")
 
 
 def main() -> None:

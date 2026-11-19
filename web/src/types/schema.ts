@@ -37,7 +37,8 @@ const MatchSideSchema = z.object({ code: z.string(), role: text });
 
 export const MatchSchema = z.object({
   order: z.number(),
-  round: z.number().int(),
+  /** Key into meta/model.rounds. */
+  round: z.number().int().min(1),
   stageLabel: text,
   kickoff: z.string().nullable().optional(),
   home: MatchSideSchema,
@@ -53,7 +54,16 @@ export const MatchupSchema = z.object({
   iterations: z.number().int().positive(),
   probs: OutcomeProbsSchema,
   matrix: z.array(ScoreCellSchema).length(25),
-  topScores: z.array(ScoreCellSchema.extend({ label: text })).min(1).max(3),
+  topScores: z
+    .array(ScoreCellSchema.extend({ label: text }))
+    .min(1)
+    .max(3),
+});
+
+export const RoundSchema = z.object({
+  round: z.number().int().min(1),
+  label: text,
+  stage: text,
 });
 
 export const ModelMetaSchema = z.object({
@@ -61,6 +71,10 @@ export const ModelMetaSchema = z.object({
   source: z.enum(['fake', 'model']),
   runNumber: z.number().int(),
   iterations: z.number().int().positive(),
+  /** Full tournament calendar; rounds without matches are shown as "em breve". */
+  rounds: z.array(RoundSchema).min(1),
+  /** Round the "Previsões" page opens on (and where the featured match comes from). */
+  currentRound: z.number().int(),
   updatedAt: timestamp.optional(),
 });
 
@@ -79,7 +93,8 @@ export const HomeContentSchema = z.object({
     subtitle: text,
   }),
   featuredTitle: text,
-  featuredMatchId: text,
+  /** Optional editorial override; by default the featured match is picked automatically. */
+  featuredMatchId: z.string().nullable().optional(),
   favoritesTitle: text,
   funFact: z.object({ title: text, body: text }),
 });
@@ -143,6 +158,7 @@ export type OutcomeProbs = z.infer<typeof OutcomeProbsSchema>;
 export type Team = z.infer<typeof TeamSchema>;
 export type Match = z.infer<typeof MatchSchema> & { id: string };
 export type Matchup = z.infer<typeof MatchupSchema>;
+export type Round = z.infer<typeof RoundSchema>;
 export type ModelMeta = z.infer<typeof ModelMetaSchema>;
 export type SiteContent = z.infer<typeof SiteContentSchema>;
 export type HomeContent = z.infer<typeof HomeContentSchema>;

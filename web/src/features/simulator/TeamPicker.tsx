@@ -22,7 +22,9 @@ function TeamSlot({ team, role, onOpen }: TeamSlotProps) {
       <div className="w-14 h-14 rounded-full bg-surface-container-lowest flex items-center justify-center text-2xl shadow-sm mb-2">
         <span>{team.flag}</span>
       </div>
-      <span className="font-title-md text-[16px] font-semibold text-on-surface text-center truncate w-full">{team.name}</span>
+      <span className="font-title-md text-[16px] font-semibold text-on-surface text-center truncate w-full">
+        {team.name}
+      </span>
       <span className="font-label-sm text-[11px] text-on-surface-variant mt-0.5">{role}</span>
       <span className="mt-2 flex items-center gap-1 text-primary font-label-sm text-[11px] font-semibold">
         Trocar
@@ -100,7 +102,9 @@ export function TeamPicker({ home, away, teams, onPick, onSwap }: TeamPickerProp
                   <span className="flex flex-col min-w-0">
                     <span className="font-title-md text-[14px] font-semibold leading-tight">{t.name}</span>
                     {isOther && (
-                      <span className={`font-label-sm text-[11px] ${selected ? 'opacity-80' : 'text-on-surface-variant'}`}>
+                      <span
+                        className={`font-label-sm text-[11px] ${selected ? 'opacity-80' : 'text-on-surface-variant'}`}
+                      >
                         Inverte o confronto
                       </span>
                     )}

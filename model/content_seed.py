@@ -35,7 +35,9 @@ HOME: Dict[str, Any] = {
         "subtitle": "Como usamos dados históricos para estimar probabilidades",
     },
     "featuredTitle": "Jogo em destaque",
-    "featuredMatchId": "bra-fra",
+    # The featured match is picked automatically: the host's match in the
+    # current round (or its first match). To force one, add
+    # "featuredMatchId": "<matches doc id>".
     "favoritesTitle": "Favoritas ao título",
     "funFact": {
         "title": "Como ler as probabilidades",
@@ -47,7 +49,7 @@ HOME: Dict[str, Any] = {
 }
 
 PREDICTIONS: Dict[str, Any] = {
-    "heading": "Previsões da Rodada 1",
+    "heading": "Previsões",
 }
 
 SIMULATOR: Dict[str, Any] = {

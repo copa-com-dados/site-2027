@@ -9,7 +9,13 @@ const router = createBrowserRouter(routes);
 export function App() {
   return (
     <ErrorBoundary>
-      <Suspense fallback={<div className="px-gutter-mobile pt-20"><PageSkeleton /></div>}>
+      <Suspense
+        fallback={
+          <div className="px-gutter-mobile pt-20">
+            <PageSkeleton />
+          </div>
+        }
+      >
         <RouterProvider router={router} />
       </Suspense>
     </ErrorBoundary>

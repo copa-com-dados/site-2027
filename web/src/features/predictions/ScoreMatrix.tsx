@@ -23,7 +23,9 @@ export function ScoreMatrix({ match, home, away }: ScoreMatrixProps) {
     <section className="rounded-xl bg-surface-container-lowest p-3.5 lg:p-5 shadow-sm flex flex-col space-y-2.5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-title-md text-[16px] font-semibold text-on-surface">Distribuição de Probabilidades</h3>
+          <h3 className="font-title-md text-[16px] font-semibold text-on-surface">
+            Distribuição de Probabilidades
+          </h3>
           <p className="font-label-sm text-[11px] text-on-surface-variant">
             Linhas: {home.shortName} (gols) • Colunas: {away.shortName} (gols)
           </p>
@@ -53,7 +55,11 @@ export function ScoreMatrix({ match, home, away }: ScoreMatrixProps) {
             {home.code}\{away.code}
           </div>
           {goals.map((g) => (
-            <div key={g} className="text-on-surface-variant font-label-sm text-[11px] font-semibold" role="columnheader">
+            <div
+              key={g}
+              className="text-on-surface-variant font-label-sm text-[11px] font-semibold"
+              role="columnheader"
+            >
               {g}
             </div>
           ))}
@@ -62,7 +68,10 @@ export function ScoreMatrix({ match, home, away }: ScoreMatrixProps) {
         <div className="space-y-1 lg:space-y-1.5">
           {grid.map((row, r) => (
             <div key={r} className="grid grid-cols-6 gap-1 lg:gap-1.5 items-center" role="row">
-              <div className="text-center font-label-sm text-[11px] font-semibold text-on-surface-variant" role="rowheader">
+              <div
+                className="text-center font-label-sm text-[11px] font-semibold text-on-surface-variant"
+                role="rowheader"
+              >
                 {r}
               </div>
               {row.map((cell) => {
@@ -84,7 +93,9 @@ export function ScoreMatrix({ match, home, away }: ScoreMatrixProps) {
                     <div className="font-label-sm text-[10px] leading-tight opacity-75">
                       {label(cell)} {isTop ? '★' : ''}
                     </div>
-                    <div className={`font-tabular-stat text-[12px] lg:text-[13px] ${isTop ? 'font-bold' : 'font-semibold'}`}>
+                    <div
+                      className={`font-tabular-stat text-[12px] lg:text-[13px] ${isTop ? 'font-bold' : 'font-semibold'}`}
+                    >
                       {pct(cell.p)}
                     </div>
                   </button>

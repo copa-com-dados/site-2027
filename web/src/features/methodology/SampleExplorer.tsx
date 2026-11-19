@@ -39,15 +39,27 @@ export function SampleExplorer({ explorer }: { explorer: MethodologyContent['exp
       </div>
       <p className="font-body-sm text-[13px] text-on-surface-variant">{explorer.body}</p>
 
-      <div className="mt-space-md bg-surface-container-lowest rounded-lg p-space-sm flex flex-col gap-2" aria-live="polite">
+      <div
+        className="mt-space-md bg-surface-container-lowest rounded-lg p-space-sm flex flex-col gap-2"
+        aria-live="polite"
+      >
         <div className="flex items-center justify-between text-[13px]">
           <span className="font-medium text-on-surface">Vitória Mandante</span>
           <span className="font-tabular-stat text-[16px] text-primary font-bold">{f(sample.home)}%</span>
         </div>
         <div className="w-full bg-surface-container rounded-full h-2 overflow-hidden flex">
-          <div className="bg-primary h-full transition-all duration-500" style={{ width: `${f(sample.home)}%` }} />
-          <div className="bg-outline-variant h-full transition-all duration-500" style={{ width: `${f(sample.draw)}%` }} />
-          <div className="bg-secondary h-full transition-all duration-500" style={{ width: `${f(sample.away)}%` }} />
+          <div
+            className="bg-primary h-full transition-all duration-500"
+            style={{ width: `${f(sample.home)}%` }}
+          />
+          <div
+            className="bg-outline-variant h-full transition-all duration-500"
+            style={{ width: `${f(sample.draw)}%` }}
+          />
+          <div
+            className="bg-secondary h-full transition-all duration-500"
+            style={{ width: `${f(sample.away)}%` }}
+          />
         </div>
         <div className="flex justify-between font-label-sm text-[11px] text-outline">
           <span>

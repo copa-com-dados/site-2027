@@ -4,7 +4,6 @@ The public website for the Copa com Dados project: probabilities and predictions
 
 - **Live:** https://copacomdados.web.app
 - **Backend:** Firebase (Cloud Firestore in `southamerica-east1` + Hosting), project `copa-com-dados`
-- **Design reference:** the original single-file prototype (kept locally in `ref/`, not versioned)
 
 ```
 web/      React 19 + TypeScript + Vite + Tailwind 3 frontend (reads Firestore, read-only)
@@ -52,7 +51,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 The service-account key comes from Firebase console → Project settings → Service accounts → *Generate new private key*. It is gitignored. **Never commit it.**
 
-See **[docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md)** for the format.
+See **[docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md)** for the format (including rounds) and **[model/README.md](model/README.md)** for how the scripts work.
 
 ## Editing the team ("Quem faz o projeto")
 

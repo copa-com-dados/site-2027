@@ -113,6 +113,10 @@ def validate_match(doc_id: str, d: Mapping[str, Any], team_codes: set) -> None:
     _require(d, p, ("order", "round", "stageLabel", "home", "away", "iterations", "probs", "matrix"))
     if not SLUG_RE.match(doc_id):
         _fail(p, "doc id must be a lowercase slug, e.g. 'bra-fra'")
+    if not isinstance(d["round"], int) or isinstance(d["round"], bool) or d["round"] < 1:
+        _fail(f"{p}.round", "expected int >= 1 (a `round` listed in meta/model.rounds)")
+    if d["home"].get("code") == d["away"].get("code"):
+        _fail(p, "home and away must differ")
     _side(d["home"], f"{p}.home", team_codes)
     _side(d["away"], f"{p}.away", team_codes)
     _str(d["stageLabel"], f"{p}.stageLabel")
@@ -180,15 +184,49 @@ def validate_dataset(dataset: Mapping[str, Mapping[str, Dict[str, Any]]]) -> Non
     for required in ("site", "home", "predictions", "simulator", "methodology"):
         if content and required not in content:
             raise ValidationError(f"content/{required} is required")
+    matches = dataset.get("matches", {})
     home = content.get("home")
-    if home and home.get("featuredMatchId") not in dataset.get("matches", {}):
-        raise ValidationError("content/home.featuredMatchId must point to an existing match")
+    featured = home.get("featuredMatchId") if home else None
+    if featured and matches and featured not in matches:
+        raise ValidationError("content/home.featuredMatchId must point to an existing match (or be removed)")
 
     meta = dataset.get("meta", {}).get("model")
     if meta is not None:
-        _require(meta, "meta/model", ("version", "source", "runNumber", "iterations", "schemaVersion"))
-        if meta["source"] not in ("fake", "model"):
-            raise ValidationError("meta/model.source must be 'fake' or 'model'")
+        validate_model_meta(meta)
+        if matches:
+            validate_rounds_vs_matches(meta, matches)
+
+
+def validate_model_meta(meta: Mapping[str, Any]) -> None:
+    p = "meta/model"
+    _require(meta, p, ("version", "source", "runNumber", "iterations", "rounds", "currentRound", "schemaVersion"))
+    if meta["source"] not in ("fake", "model"):
+        _fail(f"{p}.source", "must be 'fake' or 'model'")
+    rounds = meta["rounds"]
+    if not isinstance(rounds, list) or not rounds:
+        _fail(f"{p}.rounds", "expected a non-empty list of {round, label, stage}")
+    seen = set()
+    for i, r in enumerate(rounds):
+        rp = f"{p}.rounds[{i}]"
+        _require(r, rp, ("round", "label", "stage"))
+        if not isinstance(r["round"], int) or r["round"] < 1 or r["round"] in seen:
+            _fail(f"{rp}.round", "expected a unique int >= 1")
+        seen.add(r["round"])
+        _str(r["label"], f"{rp}.label")
+        _str(r["stage"], f"{rp}.stage")
+    if meta["currentRound"] not in seen:
+        _fail(f"{p}.currentRound", f"{meta['currentRound']!r} is not one of the rounds {sorted(seen)}")
+
+
+def validate_rounds_vs_matches(meta: Mapping[str, Any], matches: Mapping[str, Mapping[str, Any]]) -> None:
+    known = {r["round"] for r in meta["rounds"]}
+    for doc_id, m in matches.items():
+        if m["round"] not in known:
+            raise ValidationError(f"matches/{doc_id}.round={m['round']} is not listed in meta/model.rounds")
+    if not any(m["round"] == meta["currentRound"] for m in matches.values()):
+        raise ValidationError(
+            f"meta/model.currentRound={meta['currentRound']} has no matches; publish its matches first"
+        )
 
 
 def cells(matrix: List[List[float]]) -> List[Dict[str, Any]]:

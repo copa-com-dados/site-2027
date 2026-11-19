@@ -69,9 +69,15 @@ export function PeopleEditor({ editorEmail }: { editorEmail: string }) {
                     <Avatar name={p.name} src={p.photo || undefined} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="font-title-md text-[15px] font-semibold text-on-surface truncate">{p.name}</span>
+                        <span className="font-title-md text-[15px] font-semibold text-on-surface truncate">
+                          {p.name}
+                        </span>
                         {!p.visible && (
-                          <Icon name="visibility_off" className="text-[16px] text-outline" title="Oculto no site" />
+                          <Icon
+                            name="visibility_off"
+                            className="text-[16px] text-outline"
+                            title="Oculto no site"
+                          />
                         )}
                       </div>
                       <p className="font-body-sm text-[13px] text-on-surface-variant truncate">
@@ -97,7 +103,12 @@ export function PeopleEditor({ editorEmail }: { editorEmail: string }) {
                       >
                         <Icon name="arrow_downward" className="text-[18px]" />
                       </button>
-                      <button type="button" className={iconBtn} onClick={() => setEditing(p)} aria-label={`Editar ${p.name}`}>
+                      <button
+                        type="button"
+                        className={iconBtn}
+                        onClick={() => setEditing(p)}
+                        aria-label={`Editar ${p.name}`}
+                      >
                         <Icon name="edit" className="text-[18px]" />
                       </button>
                       <button

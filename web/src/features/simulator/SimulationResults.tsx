@@ -14,11 +14,19 @@ export function OutcomeCard({ result, home, away }: Props) {
   const { probs } = result;
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-sm">
-      <span className="block font-label-md text-[13px] font-semibold text-on-surface">Probabilidade de desfecho</span>
+      <span className="block font-label-md text-[13px] font-semibold text-on-surface">
+        Probabilidade de desfecho
+      </span>
       <div className="h-4 w-full rounded-full overflow-hidden flex bg-surface-container">
         <div className="h-full bg-primary transition-all duration-500" style={{ width: pct(probs.home) }} />
-        <div className="h-full bg-surface-variant transition-all duration-500" style={{ width: pct(probs.draw) }} />
-        <div className="h-full bg-tertiary-container transition-all duration-500" style={{ width: pct(probs.away) }} />
+        <div
+          className="h-full bg-surface-variant transition-all duration-500"
+          style={{ width: pct(probs.draw) }}
+        />
+        <div
+          className="h-full bg-tertiary-container transition-all duration-500"
+          style={{ width: pct(probs.away) }}
+        />
       </div>
       <div className="grid grid-cols-3 gap-1 pt-1 text-center">
         <div className="flex flex-col items-center">
@@ -51,8 +59,12 @@ export function TopScores({ result }: Pick<Props, 'result'>) {
   return (
     <div className="space-y-space-xs">
       <div className="flex items-center justify-between px-1">
-        <span className="font-title-md text-[16px] font-semibold text-on-surface">Placares mais prováveis</span>
-        <span className="font-label-sm text-[11px] text-on-surface-variant">Top {result.topScores.length} cenários</span>
+        <span className="font-title-md text-[16px] font-semibold text-on-surface">
+          Placares mais prováveis
+        </span>
+        <span className="font-label-sm text-[11px] text-on-surface-variant">
+          Top {result.topScores.length} cenários
+        </span>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {result.topScores.map((top, idx) => (
@@ -72,8 +84,12 @@ export function TopScores({ result }: Pick<Props, 'result'>) {
             >
               {score(top.home, top.away)}
             </span>
-            <span className="font-label-md text-[13px] text-on-surface font-semibold mt-0.5">{pct(top.p)}</span>
-            <span className="font-label-sm text-[10px] text-on-surface-variant mt-0.5 text-center">{top.label}</span>
+            <span className="font-label-md text-[13px] text-on-surface font-semibold mt-0.5">
+              {pct(top.p)}
+            </span>
+            <span className="font-label-sm text-[10px] text-on-surface-variant mt-0.5 text-center">
+              {top.label}
+            </span>
           </div>
         ))}
       </div>
@@ -101,8 +117,12 @@ export function MiniMatrix({ result, home, away }: Props) {
         <div className="flex items-center gap-2">
           <Icon name="grid_on" className="text-primary text-[20px]" />
           <div>
-            <span className="font-title-md text-[16px] font-semibold text-on-surface block leading-tight">Matriz de Gols 5×5</span>
-            <span className="font-label-sm text-[11px] text-on-surface-variant">Mapa de calor Poisson (0 a 4+ gols)</span>
+            <span className="font-title-md text-[16px] font-semibold text-on-surface block leading-tight">
+              Matriz de Gols 5×5
+            </span>
+            <span className="font-label-sm text-[11px] text-on-surface-variant">
+              Mapa de calor Poisson (0 a 4+ gols)
+            </span>
           </div>
         </div>
         <span className="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
@@ -128,12 +148,18 @@ export function MiniMatrix({ result, home, away }: Props) {
                 {home.code} ↓
               </div>
               {goals.map((g) => (
-                <div key={`h${g}`} className="h-7 flex items-center justify-center rounded bg-surface-container-low font-bold text-on-surface">
+                <div
+                  key={`h${g}`}
+                  className="h-7 flex items-center justify-center rounded bg-surface-container-low font-bold text-on-surface"
+                >
                   {goalLabel(g)}
                 </div>
               ))}
               {grid.map((row, h) => [
-                <div key={`r${h}`} className="h-8 flex items-center justify-center rounded bg-surface-container-low font-bold text-on-surface">
+                <div
+                  key={`r${h}`}
+                  className="h-8 flex items-center justify-center rounded bg-surface-container-low font-bold text-on-surface"
+                >
                   {goalLabel(h)}
                 </div>,
                 ...row.map((cell) => {

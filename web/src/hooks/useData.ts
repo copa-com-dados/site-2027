@@ -9,8 +9,6 @@ export const useMethodologyContent = () => useQuery('content:methodology', api.m
 export const useModelMeta = () => useQuery('meta:model', api.modelMeta);
 export const useTeams = () => useQuery('teams', api.teams);
 export const useMatches = () => useQuery('matches', api.matches);
-export const useMatch = (id: string | undefined) =>
-  useQuery(`match:${id ?? ''}`, () => api.match(id!), { enabled: !!id });
 export const useMatchup = (home: string, away: string, enabled = true) =>
   useQuery(`matchup:${home}_${away}`, () => api.matchup(home, away), { enabled: enabled && home !== away });
 export const usePeople = () => useQuery('people', api.people);

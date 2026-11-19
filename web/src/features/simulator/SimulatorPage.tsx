@@ -56,7 +56,9 @@ function Simulator({ content, teams }: { content: SimulatorContent; teams: Team[
           <h1 className="font-headline-xl-mobile text-[28px] leading-[36px] lg:text-[40px] lg:leading-[48px] text-on-surface font-normal">
             {content.title}
           </h1>
-          <p className="font-body-md text-[15px] leading-[24px] text-on-surface-variant">{content.subtitle}</p>
+          <p className="font-body-md text-[15px] leading-[24px] text-on-surface-variant">
+            {content.subtitle}
+          </p>
         </div>
 
         <TeamPicker home={home} away={away} teams={teams} onPick={pick} onSwap={swap} />
@@ -65,7 +67,11 @@ function Simulator({ content, teams }: { content: SimulatorContent; teams: Team[
         </p>
       </div>
 
-      <div className="flex flex-col space-y-space-md" aria-live="polite" aria-busy={changing || result.status === 'loading'}>
+      <div
+        className="flex flex-col space-y-space-md"
+        aria-live="polite"
+        aria-busy={changing || result.status === 'loading'}
+      >
         {result.status === 'error' ? (
           <ErrorState
             title="Confronto ainda não simulado"
@@ -79,7 +85,9 @@ function Simulator({ content, teams }: { content: SimulatorContent; teams: Team[
           </>
         ) : (
           <>
-            <div className={`flex flex-col space-y-space-md transition-opacity duration-200 ${changing ? 'opacity-50' : ''}`}>
+            <div
+              className={`flex flex-col space-y-space-md transition-opacity duration-200 ${changing ? 'opacity-50' : ''}`}
+            >
               <OutcomeCard result={result.data} home={home} away={away} />
               <TopScores result={result.data} />
               <MiniMatrix result={result.data} home={home} away={away} />
@@ -100,7 +108,10 @@ export default function SimulatorPage() {
     <AsyncView state={state}>
       {([content, teams]) =>
         teams.length < 2 ? (
-          <ErrorState title="Seleções indisponíveis" message="Ainda não há seleções suficientes cadastradas." />
+          <ErrorState
+            title="Seleções indisponíveis"
+            message="Ainda não há seleções suficientes cadastradas."
+          />
         ) : (
           <Simulator content={content} teams={[...teams].sort((a, b) => a.rank - b.rank)} />
         )

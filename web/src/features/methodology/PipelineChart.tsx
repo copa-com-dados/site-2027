@@ -12,7 +12,10 @@ export function PipelineChart({ pipeline }: { pipeline: MethodologyContent['pipe
       </div>
 
       <div className="w-full flex flex-col gap-2">
-        <div className="h-20 lg:h-28 w-full flex items-end justify-between gap-1 pt-2 px-1" aria-hidden="true">
+        <div
+          className="h-20 lg:h-28 w-full flex items-end justify-between gap-1 pt-2 px-1"
+          aria-hidden="true"
+        >
           {pipeline.bars.map((bar) => (
             <div
               key={bar.label}

@@ -8,7 +8,9 @@ export function FunFact({ fact }: { fact: HomeContent['funFact'] }) {
         <Icon name="lightbulb" className="text-[18px]" />
       </div>
       <div className="flex flex-col space-y-0.5">
-        <h3 className="font-title-md text-[15px] font-bold text-on-primary-fixed leading-tight">{fact.title}</h3>
+        <h3 className="font-title-md text-[15px] font-bold text-on-primary-fixed leading-tight">
+          {fact.title}
+        </h3>
         <p className="font-body-sm text-[13px] text-on-primary-fixed-variant leading-snug">{fact.body}</p>
       </div>
     </section>

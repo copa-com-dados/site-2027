@@ -20,7 +20,8 @@ If a document doesn't match, the affected screen shows an error card instead of 
 3. **`probs.home + probs.draw + probs.away = 1`** (±0.01).
 4. **Team codes are 3 uppercase letters** (`BRA`, `ESP`…). Every code used in `matches` or `matchups` must exist in `teams`.
 5. **Writes go through the Admin SDK only.** Browsers have read-only access (`firestore.rules`). Use a batch so the site never shows half an update.
-6. **Derived numbers are computed by the site, not stored.** That covers the most likely score, the top 3 cells of a match, and the "#1 Favorito" ordering. Get the matrix and `probs` right and everything else follows.
+6. **Derived numbers are computed by the site, not stored.** Get the matrix, `probs`, `titleProb` and the rounds right and everything else follows. See [What the site computes by itself](#what-the-site-computes-by-itself).
+7. **Every match belongs to a round** (`matches.round`), and the rounds of the tournament are listed in `meta/model.rounds`. See [Rounds](#rounds-rodadas).
 
 ## Collections
 
@@ -36,17 +37,17 @@ One document per team. The doc id must equal `code`.
 | `group` | string | `"A"` |
 | `isHost` | bool | Shows the "Anfitrião" label |
 | `rank` | int ≥ 1 | Display order in selectors |
-| `titleProb` | number 0–1 | **Model output.** Chance of winning the cup. Top 3 appear on the home page |
+| `titleProb` | number 0–1 | **Model output.** Chance of winning the cup. The home page ranks **all** teams by it (top 3 highlighted, the rest listed below). Should sum to ~1 over all teams |
 | `rating` | `{off, def}` | Optional model diagnostics (not displayed) |
 
 ### `matches/{slug}`
-Scheduled fixtures shown on **Previsões** and featured on **Início**. The doc id is a lowercase slug, e.g. `bra-fra`.
+Fixtures shown on **Previsões** and featured on **Início**. The doc id is a unique lowercase slug, e.g. `bra-fra`. Group-stage pairs never repeat, so `home-away` works. For knockout games prefix the round, e.g. `oitavas-bra-ger`.
 
 | field | type | notes |
 |---|---|---|
-| `order` | number | Carousel order (ascending) |
-| `round` | int | Round number |
-| `stageLabel` | string | `"Fase de Grupos"`, `"Oitavas de Final"`… |
+| `order` | number | Carousel order inside its round (ascending) |
+| `round` | int | **Which round this prediction is for.** Must be one of the `round` numbers in `meta/model.rounds` |
+| `stageLabel` | string | Short label shown on the match card: `"Grupo A"`, `"Oitavas de final"`… |
 | `kickoff` | ISO string \| null | Optional |
 | `home` / `away` | `{code, role}` | `role` is a display label (`"Mandante"` / `"Visitante"`) |
 | `iterations` | int | Number of simulations behind the numbers (shown as "10.000 simulações") |
@@ -54,7 +55,7 @@ Scheduled fixtures shown on **Previsões** and featured on **Início**. The doc 
 | `matrix` | 25 cells | **Model output.** **Exact** score probabilities for 0–4 goals. Mass above 4 goals is dropped, so the cells sum to slightly less than 1 |
 
 ### `matchups/{HOME}_{AWAY}`
-Head-to-head results for the **Simulador**. The simulator lets visitors pick *any* two teams, so write **every ordered pair** of teams in `teams`. For 8 teams that's 8 × 7 = 56 docs. Doc id example: `BRA_ESP` (home first).
+Head-to-head results for the **Simulador**. The simulator lets visitors pick *any* two teams, so write **every ordered pair** of teams in `teams`. For 32 teams that's 32 × 31 = 992 docs. Doc id example: `BRA_ESP` (home first).
 
 | field | type | notes |
 |---|---|---|
@@ -71,9 +72,44 @@ Head-to-head results for the **Simulador**. The simulator lets visitors pick *an
 | `source` | `"fake"` \| `"model"` | **Set to `"model"`** when real numbers go in |
 | `runNumber` | int | Run identifier (not displayed) |
 | `iterations` | int | Total simulations in this run |
+| `rounds` | list of `{round, label, stage}` | **The whole tournament calendar**, including rounds you haven't predicted yet. `round` is a unique int (1, 2, 3…), `label` is what the round picker shows (`"Rodada 1"`, `"Oitavas de final"`), `stage` is the subtitle (`"Fase de grupos"`, `"Mata-mata"`) |
+| `currentRound` | int | The round **Previsões** opens on, and where the home page takes its featured match from. Must have at least one match |
+
+## Rounds (rodadas)
+
+The **Previsões** page has a round picker. It lists every entry of `meta/model.rounds`:
+
+- a round **with** at least one document in `matches` is clickable;
+- a round **without** matches is shown greyed out as "em breve".
+
+So "publishing a round" just means writing its matches. A typical tournament:
+
+| round | label | stage | when to publish |
+|---|---|---|---|
+| 1 | Rodada 1 | Fase de grupos | before the World Cup starts |
+| 2 | Rodada 2 | Fase de grupos | before the World Cup, or updated after round 1 |
+| 3 | Rodada 3 | Fase de grupos | same |
+| 4 | Oitavas de final | Mata-mata | once the group stage is over and the pairings are known |
+| 5 | Quartas de final | Mata-mata | … |
+| 6 | Semifinais | Mata-mata | … |
+| 7 | Final e 3º lugar | Mata-mata | … |
+
+**To publish the next round:** write the new round's `matches` (with `round` set), keep the matches of earlier rounds so they stay browsable, re-write `teams` with the updated `titleProb`, and move `meta/model.currentRound` forward. With the fake model that's `PUBLISHED_ROUNDS` and `CURRENT_ROUND` in `model/fake_model.py`.
+
+## What the site computes by itself
+
+So that the site never shows something stale or contradictory, nothing below is stored. It all follows from the model output:
+
+| on the site | derived from |
+|---|---|
+| Favorites ranking (top 3 cards plus the full list) | `teams.titleProb`, sorted |
+| "Atualizado em …" | `meta/model.updatedAt` (stamped by the writer) |
+| Featured match on Início | The host team's match in `currentRound`. If the host doesn't play that round, the round's first match (`order`). An editor can force one with `content/home.featuredMatchId`. If that id doesn't exist, the site silently falls back to the automatic pick |
+| Most likely score, top-3 cells, heatmap colors | the match's `matrix` |
+| Round picker (which rounds are clickable) | `meta/model.rounds` and the `round` of each match |
 
 ### `content/*`: editorial copy (owned by the frontend/editorial team)
-`content/site`, `content/home`, `content/predictions`, `content/simulator` and `content/methodology` hold all the text, the YouTube video id, the featured match (`content/home.featuredMatchId` must point to an existing `matches` doc) and the methodology steps. The source of truth is `model/content_seed.py`; edit there and run `python seed.py --only content`. Modelers normally don't touch these.
+`content/site`, `content/home`, `content/predictions`, `content/simulator` and `content/methodology` hold all the text, the YouTube video id and the methodology steps. `content/home.featuredMatchId` is optional (see above). The source of truth is `model/content_seed.py`; edit there and run `python seed.py --only content`. Modelers normally don't touch these.
 
 ### `people/{auto-id}`: "Quem faz o projeto" (edited in the site's `/admin` page)
 Fields: `name`, `kind` (`"coordinator"` | `"student"`), `title`, `subtitle`, `tag` (e.g. a cohort), `photo` (a small JPEG data URL created by the admin page), `order`, `visible`. Nobody needs to touch this from code. Use **https://copacomdados.web.app/admin**, signed in with an allowlisted Google account. `seed.py` never overwrites it.
@@ -86,9 +122,9 @@ The writer adds two fields to every document automatically: `schemaVersion: 1` a
 
 ```json
 {
-  "order": 1,
+  "order": 101,
   "round": 1,
-  "stageLabel": "Fase de Grupos",
+  "stageLabel": "Grupo A",
   "kickoff": null,
   "home": { "code": "BRA", "role": "Mandante" },
   "away": { "code": "FRA", "role": "Visitante" },
@@ -112,4 +148,27 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python seed.py             # publish
 ```
 
-To plug in the real model, replace `FakeModel` in `model/fake_model.py` with your own code that returns the same `{collection: {doc_id: data}}` dict. Or write your own exporter (R, Python…) that produces the documents above and calls `validate_dataset()` before writing. Keep `seed.py`'s batching. Firestore allows at most 500 writes per batch.
+To plug in the real model, replace `FakeModel` in `model/fake_model.py` with your own code that returns the same `{collection: {doc_id: data}}` dict. Or write your own exporter that produces the documents above and calls `validate_dataset()` before writing. Keep `seed.py`'s batching. Firestore allows at most 500 writes per batch. See [model/README.md](../model/README.md) for a walkthrough of the scripts.
+
+`teams`, `matches` and `matchups` are **replaced** on every run. `seed.py` deletes documents in those collections that the new run didn't produce. So always write the full set (all published rounds), not just the new matches.
+
+### Example: `meta/model`
+
+```json
+{
+  "version": "dc-bayes-1.2.0",
+  "source": "model",
+  "runNumber": 3,
+  "iterations": 10000,
+  "currentRound": 1,
+  "rounds": [
+    { "round": 1, "label": "Rodada 1", "stage": "Fase de grupos" },
+    { "round": 2, "label": "Rodada 2", "stage": "Fase de grupos" },
+    { "round": 3, "label": "Rodada 3", "stage": "Fase de grupos" },
+    { "round": 4, "label": "Oitavas de final", "stage": "Mata-mata" },
+    { "round": 5, "label": "Quartas de final", "stage": "Mata-mata" },
+    { "round": 6, "label": "Semifinais", "stage": "Mata-mata" },
+    { "round": 7, "label": "Final e 3º lugar", "stage": "Mata-mata" }
+  ]
+}
+```

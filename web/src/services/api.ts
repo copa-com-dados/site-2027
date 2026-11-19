@@ -26,7 +26,6 @@ export const api = {
 
   teams: async (): Promise<Team[]> => fetchCollection(TeamSchema, 'teams', orderBy('rank')),
   matches: async (): Promise<Match[]> => fetchCollection(MatchSchema, 'matches', orderBy('order')),
-  match: async (id: string): Promise<Match> => ({ ...(await fetchDoc(MatchSchema, 'matches', id)), id }),
   matchup: (home: string, away: string) => fetchDoc(MatchupSchema, 'matchups', `${home}_${away}`),
   /** Visible people, ordered. Filtering is client-side to avoid a composite index. */
   people: async (): Promise<Person[]> =>

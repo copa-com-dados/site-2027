@@ -26,7 +26,8 @@ describe('matrix', () => {
     const top = heat(0.14, 0.14, 'green');
     const mid = heat(0.07, 0.14, 'green');
     const low = heat(0.01, 0.14, 'green');
-    const alpha = (h: { backgroundColor: string }) => Number(h.backgroundColor.match(/[\d.]+\)$/)![0].slice(0, -1));
+    const alpha = (h: { backgroundColor: string }) =>
+      Number(h.backgroundColor.match(/[\d.]+\)$/)![0].slice(0, -1));
     expect(alpha(top)).toBeGreaterThan(alpha(mid));
     expect(alpha(mid)).toBeGreaterThan(alpha(low));
     expect(top.strong).toBe(true);

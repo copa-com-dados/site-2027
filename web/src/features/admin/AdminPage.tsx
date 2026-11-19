@@ -61,7 +61,9 @@ export default function AdminPage() {
   return (
     <div className="flex flex-col w-full max-w-2xl mx-auto pb-8 space-y-space-lg pt-space-xs">
       <header className="flex flex-col gap-1.5">
-        <h1 className="font-headline-xl-mobile text-[28px] leading-[36px] text-on-surface font-medium">Área da equipe</h1>
+        <h1 className="font-headline-xl-mobile text-[28px] leading-[36px] text-on-surface font-medium">
+          Área da equipe
+        </h1>
         <p className="font-body-md text-[15px] leading-[24px] text-on-surface-variant">
           Edite quem aparece em “Quem faz o projeto”, na página{' '}
           <Link to="/metodologia" className="text-primary font-semibold underline">
@@ -116,7 +118,11 @@ export default function AdminPage() {
             <span className="font-body-sm text-[13px] text-on-surface-variant truncate">
               Conectado como <b className="text-on-surface">{state.user.email}</b>
             </span>
-            <button type="button" onClick={signOut} className="font-label-md text-[13px] font-semibold text-primary shrink-0">
+            <button
+              type="button"
+              onClick={signOut}
+              className="font-label-md text-[13px] font-semibold text-primary shrink-0"
+            >
               Sair
             </button>
           </div>

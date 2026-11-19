@@ -1,26 +1,42 @@
 import { useSearchParams } from 'react-router-dom';
 import { AsyncView } from '../../components/ui/AsyncView';
 import { ErrorState } from '../../components/ui/ErrorState';
-import { useMatches, usePredictionsContent, useSiteContent, useTeams } from '../../hooks/useData';
+import {
+  useMatches,
+  useModelMeta,
+  usePredictionsContent,
+  useSiteContent,
+  useTeams,
+} from '../../hooks/useData';
 import { combine } from '../../hooks/useQuery';
 import { topCell } from '../../lib/matrix';
+import { pickRound, roundViews } from '../../lib/rounds';
 import { indexTeams, teamOf } from '../../lib/teams';
 import { MatchCard, TopOutcome } from './MatchSummary';
 import { MatchCarousel } from './MatchCarousel';
+import { RoundPicker } from './RoundPicker';
 import { ScoreMatrix } from './ScoreMatrix';
 
 export default function PredictionsPage() {
   const [params, setParams] = useSearchParams();
-  const state = combine(usePredictionsContent(), useSiteContent(), useMatches(), useTeams());
+  const state = combine(usePredictionsContent(), useSiteContent(), useMatches(), useTeams(), useModelMeta());
 
   return (
     <AsyncView state={state}>
-      {([content, site, matches, teamList]) => {
-        if (matches.length === 0) {
-          return <ErrorState title="Nenhum jogo publicado ainda" message="As previsões aparecerão aqui em breve." />;
+      {([content, site, matches, teamList, meta]) => {
+        const rounds = roundViews(meta, matches);
+        const requested = Number(params.get('rodada')) || undefined;
+        const round = pickRound(rounds, meta.currentRound, requested, params.get('jogo'));
+        if (!round) {
+          return (
+            <ErrorState
+              title="Nenhum jogo publicado ainda"
+              message="As previsões aparecerão aqui em breve."
+            />
+          );
         }
         const teams = indexTeams(teamList);
-        const active = matches.find((m) => m.id === params.get('jogo')) ?? matches[0]!;
+        const active = round.matches.find((m) => m.id === params.get('jogo')) ?? round.matches[0]!;
         const home = teamOf(teams, active.home.code);
         const away = teamOf(teams, active.away.code);
         const top = topCell(active.matrix)!;
@@ -39,11 +55,17 @@ export default function PredictionsPage() {
                 </div>
               </div>
 
+              <RoundPicker
+                rounds={rounds}
+                selected={round}
+                onSelect={(r) => setParams({ rodada: String(r) }, { replace: true })}
+              />
+
               <MatchCarousel
-                matches={matches}
+                matches={round.matches}
                 teams={teams}
                 selectedId={active.id}
-                onSelect={(id) => setParams({ jogo: id }, { replace: true })}
+                onSelect={(id) => setParams({ rodada: String(round.round), jogo: id }, { replace: true })}
               />
             </section>
 

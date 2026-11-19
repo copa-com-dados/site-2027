@@ -1,7 +1,7 @@
 import type { Config } from 'tailwindcss';
 
 // Design tokens copied verbatim from the reference prototype
-// (the original prototype in ref/). Font sizes are intentionally NOT
+// (the original single-file prototype). Font sizes are intentionally NOT
 // extended: the reference sets sizes with arbitrary `text-[Npx]` utilities.
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],

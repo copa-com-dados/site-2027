@@ -83,7 +83,11 @@ export function FeaturedMatch({ content, match, teams }: FeaturedMatchProps) {
               style={{ width: `${pH}%` }}
               title={`Vitória: ${home.name} (${pH}%)`}
             />
-            <div className="h-full bg-surface-variant" style={{ width: `${pD}%` }} title={`Empate (${pD}%)`} />
+            <div
+              className="h-full bg-surface-variant"
+              style={{ width: `${pD}%` }}
+              title={`Empate (${pD}%)`}
+            />
             <div
               className="h-full bg-tertiary-container rounded-r-full transition-all duration-700"
               style={{ width: `${pA}%` }}
@@ -97,7 +101,9 @@ export function FeaturedMatch({ content, match, teams }: FeaturedMatchProps) {
             <Icon name="sports_score" className="text-primary text-[20px]" />
             <div className="flex flex-col">
               <span className="font-label-sm text-[11px] text-on-surface-variant">Placar mais cotado</span>
-              <span className="font-title-md text-[16px] text-on-surface font-bold">{score(top.home, top.away, 'x')}</span>
+              <span className="font-title-md text-[16px] text-on-surface font-bold">
+                {score(top.home, top.away, 'x')}
+              </span>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-full bg-surface-container-highest text-on-surface font-label-sm text-[11px] font-semibold">
@@ -117,7 +123,9 @@ export function FeaturedMatch({ content, match, teams }: FeaturedMatchProps) {
 
         {open && (
           <div className="flex flex-col space-y-2 pt-2 animate-fadeIn">
-            <p className="font-label-sm text-[11px] text-on-surface-variant leading-relaxed">Os placares mais prováveis em {count(match.iterations)} simulações desta partida.</p>
+            <p className="font-label-sm text-[11px] text-on-surface-variant leading-relaxed">
+              Os placares mais prováveis em {count(match.iterations)} simulações desta partida.
+            </p>
             <div className="grid grid-cols-3 gap-2 text-center">
               {quick.map((c) => {
                 const isTop = c === top;
@@ -131,7 +139,9 @@ export function FeaturedMatch({ content, match, teams }: FeaturedMatchProps) {
                     >
                       {score(c.home, c.away, 'x')}
                     </span>
-                    <span className={`font-tabular-stat text-[16px] font-bold ${isTop ? '' : 'text-on-surface'}`}>
+                    <span
+                      className={`font-tabular-stat text-[16px] font-bold ${isTop ? '' : 'text-on-surface'}`}
+                    >
                       {pct(c.p)}
                     </span>
                   </div>

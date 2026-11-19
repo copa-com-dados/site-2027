@@ -12,7 +12,9 @@ interface FavoritesProps {
 }
 
 export function Favorites({ content, teams, updatedAt }: FavoritesProps) {
-  const top3 = [...teams].sort((a, b) => b.titleProb - a.titleProb).slice(0, 3);
+  const ranked = [...teams].sort((a, b) => b.titleProb - a.titleProb);
+  const top3 = ranked.slice(0, 3);
+  const rest = ranked.slice(3);
   return (
     <section className="flex flex-col space-y-2.5">
       <SectionHeader
@@ -47,7 +49,9 @@ export function Favorites({ content, teams, updatedAt }: FavoritesProps) {
               >
                 {team.flag}
               </div>
-              <span className="font-title-md text-[15px] font-semibold text-on-surface">{team.shortName}</span>
+              <span className="font-title-md text-[15px] font-semibold text-on-surface">
+                {team.shortName}
+              </span>
               <span
                 className={`font-tabular-stat text-[22px] font-bold leading-none ${first ? 'text-secondary' : 'text-on-surface'}`}
               >
@@ -58,6 +62,33 @@ export function Favorites({ content, teams, updatedAt }: FavoritesProps) {
           );
         })}
       </div>
+
+      {rest.length > 0 && (
+        <ol
+          start={4}
+          aria-label="Demais seleções"
+          className="bg-surface-container-lowest rounded-xl shadow-sm p-1.5 columns-2 gap-x-2 [column-rule:1px_solid_theme(colors.surface-container)]"
+        >
+          {rest.map((team, i) => (
+            <li
+              key={team.code}
+              title={team.name}
+              className={`break-inside-avoid flex items-center gap-1 px-1 py-1.5 rounded-lg font-label-sm text-[12px] ${
+                team.isHost ? 'bg-secondary-container/50 font-semibold' : ''
+              }`}
+            >
+              <span className="w-5 shrink-0 text-right text-[10px] text-on-surface-variant font-tabular-stat">
+                {i + 4}º
+              </span>
+              <span className="text-[14px] leading-none">{team.flag}</span>
+              <span className="truncate text-on-surface">{team.shortName}</span>
+              <span className="ml-auto pl-1 shrink-0 text-[11px] font-tabular-stat text-on-surface-variant">
+                {team.titleProb < 0.001 ? '<0.1%' : pct(team.titleProb)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }
